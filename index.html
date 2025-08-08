@@ -336,7 +336,7 @@
         /* 夜晚遮罩 */
         #night-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.95); /* 增加遮罩不透明度 */
             color: white;
             display: none; justify-content: center; align-items: center;
             text-align: center; z-index: 50;
@@ -1015,14 +1015,14 @@
                     const wolves = gameState.players.filter(p => p.role.name === '狼人' && p.isAlive);
                     if (wolves.length > 0) {
                         const aiWolf = wolves[0];
-                        UIManager.highlightPlayer(aiWolf.id, 'thinking');
+                        // UIManager.highlightPlayer(aiWolf.id, 'thinking'); // OPTIMIZATION: Removed night highlight
                         const validTargets = gameState.players.filter(p => p.isAlive && p.role.team === 'good').map(p => p.id);
                         if(validTargets.length > 0) {
                             const prompt = `你是狼人，请选择一个目标进行击杀。优先考虑击杀神职（预言家、女巫、猎人）或看起来像领袖的玩家。`;
                             targetId = await AILogic.getAIActionDecision(aiWolf, gameState, prompt, validTargets);
                             this.internalLog(`AI狼人团队选择攻击 ${targetId}号`);
                         }
-                        UIManager.highlightPlayer(null);
+                        // UIManager.highlightPlayer(null); // OPTIMIZATION: Removed night highlight
                     }
                 }
                 gameState.nightInfo.wolfTarget = targetId;
@@ -1037,12 +1037,12 @@
                 if (seer.isHuman) {
                     targetId = await this.waitForHumanSelection('请选择你要查验的目标', (id) => id !== seer.id);
                 } else {
-                    UIManager.highlightPlayer(seer.id, 'thinking');
+                    // UIManager.highlightPlayer(seer.id, 'thinking'); // OPTIMIZATION: Removed night highlight
                     const uncheckedPlayers = gameState.players.filter(p => p.isAlive && p.id !== seer.id && !seer.memory.checked.some(c => c.id === p.id)).map(p => p.id);
                     const validTargets = uncheckedPlayers.length > 0 ? uncheckedPlayers : gameState.players.filter(p=>p.isAlive && p.id !== seer.id).map(p=>p.id);
                     const prompt = `你是预言家，请选择一个你认为最可疑的、且未查验过的玩家进行查验。`;
                     targetId = await AILogic.getAIActionDecision(seer, gameState, prompt, validTargets);
-                    UIManager.highlightPlayer(null);
+                    // UIManager.highlightPlayer(null); // OPTIMIZATION: Removed night highlight
                 }
 
                 if (targetId) {
@@ -1099,7 +1099,7 @@
                         }
                     }
                 } else { // AI Witch Logic
-                    UIManager.highlightPlayer(witch.id, 'thinking');
+                    // UIManager.highlightPlayer(witch.id, 'thinking'); // OPTIMIZATION: Removed night highlight
                     const simplifiedPrompt = `你是女巫。今晚${attackedId ? ` ${attackedId}号被攻击了` : '是平安夜'}。你的解药${canSave ? '可用' : '已用'}，毒药${canPoison ? '可用' : '已用'}。根据场上信息和你的判断，做出你的选择。`;
                     const simplifiedOptions = ['SKIP'];
                     if (canSave) simplifiedOptions.push('SAVE');
@@ -1126,7 +1126,7 @@
                     } else {
                         this.internalLog(`AI女巫决定【跳过】。`);
                     }
-                    UIManager.highlightPlayer(null);
+                    // UIManager.highlightPlayer(null); // OPTIMIZATION: Removed night highlight
                 }
                 UIManager.setPrompt(''); UIManager.clearSelectable();
             },
